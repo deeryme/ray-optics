@@ -1,17 +1,17 @@
 # Ray Optics Simulation - Integration Tools
 
-Version: 5.2+20251018.5dd0c3c
+Version: 5.2+20251025.d863ffa
 
 This package contains tools for integrating the Ray Optics Simulation engine with other programming languages.
 
 ## Download
 
-- [Latest deployment](https://github.com/ricktu288/ray-optics/archive/refs/heads/dist-integrations.zip) (compatible with the online app, with beta features)
-- [Latest release](https://github.com/ricktu288/ray-optics/releases/latest) (slightly older, but has a versioned DOI for citation)
+- [Latest deployment](https://github.com/ricktu288/ray-optics/archive/refs/heads/dist-integrations.zip) (compatible with the online app)
+- [Latest release](https://github.com/ricktu288/ray-optics/releases/latest) (slightly older, no beta features, citable with a DOI)
 
 ## Contents
 
-- `rayOptics.js` - The core simulation engine
+- `rayOptics.js` - The core simulation engine ([source code](https://github.com/ricktu288/ray-optics/blob/master/src/core), [documentation](https://phydemo.app/ray-optics/docs/index.html))
 - `runner.js` - Command-line interface for the simulation engine
 - `example_python.py` - Python example
 - `example_julia.jl` - Julia example
