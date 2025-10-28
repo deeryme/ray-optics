@@ -1,0 +1,75 @@
+{
+  "version": 5,
+  "name": "test",
+  "objs": [
+    {
+      "type": "AngleSource",
+      "p1": {
+        "x": 40,
+        "y": 20
+      },
+      "p2": {
+        "x": 40,
+        "y": 10
+      },
+      "emisAngle": 140
+    },
+    {
+      "type": "AngleSource",
+      "p1": {
+        "x": 43,
+        "y": 20
+      },
+      "p2": {
+        "x": 43,
+        "y": 10
+      },
+      "emisAngle": 140
+    },
+    {
+      "type": "ArcMirror",
+      "p1": {
+        "x": 41,
+        "y": 16
+      },
+      "p2": {
+        "x": 42,
+        "y": 16
+      },
+      "p3": {
+        "x": 41.5,
+        "y": 16
+      }
+    },
+    {
+      "type": "Detector",
+      "p1": {
+        "x": 40.75,
+        "y": 20
+      },
+      "p2": {
+        "x": 42.25,
+        "y": 20
+      },
+      "irradMap": true,
+      "binSize": 0.1
+    },
+    {
+      "type": "CropBox",
+      "p1": {"x": 32, "y": 0},
+      "p4": {"x": 50, "y": 35},
+      "width": 500
+    }
+  ],
+  "width": 1500,
+  "height": 900,
+  "rayModeDensity": 1.5265342959664567,
+  "showGrid": true,
+  "gridSize": 1,
+  "lengthScale": 0.1,
+  "origin": {
+    "x": -1217.7466157567594,
+    "y": -503.05228391216576
+  },
+  "scale": 50
+}
