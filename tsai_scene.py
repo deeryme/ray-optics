@@ -4,7 +4,7 @@ bin_size        = 0.1
 
 SCENE = {
   "version": 5,
-  "name": "my_scene",
+  "name": "tsai_scene",
   "objs": [
     {
         "type": "AngleSource",

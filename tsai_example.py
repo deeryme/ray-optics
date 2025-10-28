@@ -68,6 +68,7 @@ for idx, pos in enumerate(np.linspace(-2, 2, 4*pts_per_mm+1)):
 
     # Parse the result
     sim_result = json.loads(sim_process.stdout)
+    print(sim_result)
 
     # Check for simulator errors and warnings
     if sim_result.get('error'):
@@ -77,13 +78,13 @@ for idx, pos in enumerate(np.linspace(-2, 2, 4*pts_per_mm+1)):
         print(f"Simulator warning: {sim_result['warning']}")
 
     # Display the detector results
-    # print("Detector results:")
-    # detector = sim_result['detectors'][0]  # Get the first detector
-    # print(f"  Power: {detector['power']}")
+    print("Detector results:")
+    detector = sim_result['detectors'][0]  # Get the first detector
+    print(f"  Power: {detector['power']}")
 
-    # print("  Irradiance map:")
-    # for i in range(5):  # Print all 5 bins
-    #     print(f"    Position {detector['binPositions'][i]:.2f}: {detector['irradianceMap'][i]:.6f}")
+    print("  Irradiance map:")
+    for i in range(5):  # Print all 5 bins
+        print(f"    Position {detector['binPositions'][i]:.2f}: {detector['irradianceMap'][i]:.6f}")
 
 
     # ========== GET IMAGE FROM SIM RESULT ==========
@@ -95,7 +96,7 @@ for idx, pos in enumerate(np.linspace(-2, 2, 4*pts_per_mm+1)):
     image_path = f"{dir_name}/my_scene_{idx+1:03}.png"
     with open(image_path, "wb") as f:
         f.write(base64.b64decode(image_data))
-    print(f"Image saved to {image_path}")
+    # print(f"Image saved to {image_path}")
 
 print("\nExamples completed!")
 
