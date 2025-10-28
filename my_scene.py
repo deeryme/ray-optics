@@ -1,36 +1,40 @@
+detector_width  = 1.5 # mm
+mirror_width    = 1.0 # mm
+bin_size        = 0.1
+
 SCENE = {
   "version": 5,
   "name": "my_scene",
   "objs": [
     {
-      "type": "AngleSource",
-      "p1": {"x": 40,"y": 20},
-      "p2": {"x": 40, "y": 15},
-      "emisAngle": 140
+        "type": "AngleSource",
+        "p1": {"x": -1.5, "y": 0},
+        "p2": {"x": -1.5, "y": -5},
+        "emisAngle": 140
     },
     {
-      "type": "AngleSource",
-      "p1": {"x": 43, "y": 20},
-      "p2": {"x": 43, "y": 15},
-      "emisAngle": 140
+        "type": "AngleSource",
+        "p1": {"x": 1.5, "y": 0},
+        "p2": {"x": 1.5, "y": -5},
+        "emisAngle": 140
     },
     {
-      "type": "Detector",
-      "p1": {"x": 40.75, "y": 20},
-      "p2": {"x": 42.25, "y": 20},
-      "irradMap": True,
-      "binSize": 0.1
+        "type": "Detector",
+        "p1": {"x": -detector_width/2, "y": 0},
+        "p2": {"x": detector_width/2, "y": 0},
+        "irradMap": True,
+        "binSize": bin_size
     },
     {
-      "type": "Mirror",
-      "p1": {"x": 40.5, "y": 16},
-      "p2": {"x": 42.5, "y": 16}
+        "type": "Mirror",
+        "p1": {"x": -mirror_width/2, "y": -4},
+        "p2": {"x": mirror_width/2, "y": -4}
     },
     {
-      "type": "CropBox",
-      "p1": {"x": 32, "y": 0},
-      "p4": {"x": 50, "y": 35},
-      "width": 500
+        "type": "CropBox",
+        "p1": {"x": -10, "y": -10}, # Upper left corner
+        "p4": {"x": 10, "y": 10},   # Lower right corner
+        "width": 500                # Width of the image
     }
   ],
   "width": 1500,
