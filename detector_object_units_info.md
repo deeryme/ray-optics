@@ -1,5 +1,5 @@
 # Detector object units info
-- P: The rate of energy flow (flux) in B/s (see below).
+- P: The rate of energy flow (flux) in B/s (see below). It (seems) equivalent to the average of a detector's bins' line irradiance *[Power/Length]* readings multiplied by the total *length* of the detector.
 - F⊥: The rate of perpendicular momentum flow in (B/s)/c.
 - F∥: The rate of parallel momentum flow in (B/s)/c.
 - The irradiance in the exported CSV is in (B/s)/L.
