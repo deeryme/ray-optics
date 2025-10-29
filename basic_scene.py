@@ -1,5 +1,6 @@
 detector_width  = 1.5 # mm
 mirror_width    = 1.0 # mm
+mirror_height   = 4.0 # mm
 bin_size        = 0.1
 
 
@@ -28,8 +29,8 @@ SCENE = {
     },
     {
         "type": "Mirror",
-        "p1": {"x": -mirror_width/2, "y": -4},
-        "p2": {"x": mirror_width/2, "y": -4}
+        "p1": {"x": -mirror_width/2, "y": -mirror_height},
+        "p2": {"x": mirror_width/2, "y": -mirror_height}
     },
     {
         "type": "CropBox",
@@ -39,8 +40,8 @@ SCENE = {
     },
     {
         "type": "TextLabel",
-        "x": 6.5,
-        "y": 6.5,
+        "x": 5.5,
+        "y": 7.5,
         "text": "foo",
         "fontSize": 1,
         "font": "Arial"

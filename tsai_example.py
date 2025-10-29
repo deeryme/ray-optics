@@ -38,7 +38,7 @@ if canvas_check.returncode != 0:
     sys.exit(0)
 
 try:
-    dir_name = "papilliary_pics"
+    dir_name = "tsai_pics"
     os.makedirs(dir_name)
 except FileExistsError:
     print(f"{dir_name} directory exists.")
