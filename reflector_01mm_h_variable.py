@@ -1,145 +1,56 @@
 #!/usr/bin/env python3
 """
-Ray Optics Simulation - Python Example
-
-This example shows how to use the Ray Optics Simulation from Python:
-1. Getting detector readings from a simple optical setup
-2. Generating an image of a simple optical setup
+Ray Optics Simulation of tangential translation of reflector above photodetector
 """
 
 import os
-import json
-import subprocess
-import base64
-import sys
-import shutil
-import basic_scene as my_scene
 import numpy as np
+from sim_helper_functions import run_sim_startup_checks, create_gif_from_images, simulate_scene
+import basic_scene as my_scene
 
-def simulator_startup_checks():
-    # ========== Startup Checks ==========
-    print("Ray Optics Simulation - Python Example")
-    print("For more information about this package, see the README.md file.")
 
-    # Check if Node.js is installed
-    if not shutil.which("node"):
-        print("\nError: Node.js is not installed.")
-        print("You can install it from https://nodejs.org/")
-        sys.exit(1)
+run_sim_startup_checks()
+scene = my_scene.SCENE
 
-    # Check if node-canvas is installed
-    canvas_check = subprocess.run(
-        ["node", "-e", "try{require('canvas');process.exit(0)}catch(e){process.exit(1)}"]
-    )
+# ========== SETUP FILE STRUCTURE SIM OF A SET OF SCENES ==========
+mir_w_str = 'f'.join(f"{my_scene.mirror_width:.1f}".split('.'))
+mir_h_str = 'f'.join(f"{my_scene.mirror_height:.1f}".split('.'))
+scene['name'] = f"reflector_w_{mir_w_str}mm_h_{mir_h_str}mm"
+try:
+    dir_name = scene['name']
+    os.makedirs(dir_name)
+except FileExistsError:
+    print(f"{dir_name} directory already exists.")
 
-    if canvas_check.returncode != 0:
-        print("To run this example, you need to install node-canvas:")
-        print("  npm install canvas")
-        sys.exit(0)
+try:
+    print(f"{dir_name}/data")
+    os.makedirs(f"{dir_name}/data")
+except FileExistsError:
+    print("data sub-directory already exists.")
 
-def create_gif_from_images(input_pics, output_gif, frame_rate=30):
-    export_as_gif_command = [
-        'ffmpeg',
-        '-framerate', str(frame_rate),
-        '-i', input_pics,
-        output_gif
-    ]
+try:    
+    print(f"{dir_name}/pics")
+    os.makedirs(f"{dir_name}/pics")
+except FileExistsError:
+    print("pics sub-directory already exists.")
 
-    try:
-        subprocess.run(export_as_gif_command, check=True)
-        print(f"GIF '{output_gif}' created successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error creating GIF: {e}")
-    except FileNotFoundError:
-        print("FFmpeg not found. Please ensure FFmpeg is installed and in your system's PATH.")
 
-def simulate_scene(scene, file_name, dir_name=None):
-    if dir_name is None:
-        dir_name == file_name
+# ========== RUN SIM ==========
+print("\n=== Running Sim ===")
+pts_per_mm = 20
+delta_X = 2 # mm; mirror's tangential displacement
+for idx, pos in enumerate(np.linspace(-delta_X, delta_X, 2*delta_X*pts_per_mm+1)): 
+    # Vary Scene Parameters
+    scene["objs"][3]["p1"]["x"] = -my_scene.mirror_width/2 + pos
+    scene["objs"][3]["p2"]["x"] =  my_scene.mirror_width/2 + pos
+    scene["objs"][5]["text"] = f"Mirror is\n{pos:.2f} mm\nfrom ctr"       
+    file_name = f"{scene['name']}_mir_pos_{idx:03}"
+    simulate_scene(scene, file_name, dir_name)
     
-    # ========== SIMULATE A SCENE & LOAD JSON OUTPUT ==========
-    json_encoded_scene = json.dumps(scene)
-
-    # Run the simulation using Node.js
-    # Assumes runner.js is in the same directory as this script
-    print(f"Simulation Running: {scene['objs'][5]['text']}")
-    sim_process = subprocess.run(
-        ["node", "runner.js"],
-        input=json_encoded_scene.encode(),
-        capture_output=True
-    )
-
-    # ========== PARSE SIM RESULT FOR P_DETECTOR RESULTS ==========
-    # Check for simulator errors and warnings
-    sim_result = json.loads(sim_process.stdout)
-    if sim_result.get('error'):
-        print(f"Simulator error: {sim_result['error']}")
-    if sim_result.get('warning'):
-        print(f"Simulator warning: {sim_result['warning']}")
-    detector = sim_result['detectors'][0]  # Get the one (and only) detector
-    
-    readings = {
-        'power': detector['power'], 
-        'irradianceMap': detector['irradianceMap'],
-        'binPositions': detector['binPositions'],
-        'normal': detector['normal'], 
-        'shear': detector['shear']
-    }
-
-    readings_path = f"{dir_name}/data/{file_name}.json"
-    with open(os.path.join(os.getcwd(), readings_path), 'w', newline='') as file:
-        json.dump(readings, file)
+ffmpeg_in = f"{dir_name}/pics/{scene['name']}_mir_pos_%3d.png"
+ffmpeg_out = f"{dir_name}/pics/{scene['name']}.gif"
+create_gif_from_images(ffmpeg_in, ffmpeg_out, 5)
 
 
-    # ========== GET IMAGE FROM SIM RESULT ==========
-    # Get the image data
-    image_data = sim_result['images'][0]['dataUrl'].split(',')[1]
-
-    # Save the image to a file
-    image_path = f"{dir_name}/pics/{file_name}.png"
-    with open(image_path, "wb") as f:
-        f.write(base64.b64decode(image_data))
-
-
-
-if __name__ == "__main__":
-    simulator_startup_checks() 
-    scene = my_scene.SCENE
-    mir_w_str = 'f'.join(f"{my_scene.mirror_width:.1f}".split('.'))
-    mir_h_str = 'f'.join(f"{my_scene.mirror_height:.1f}".split('.'))
-    scene['name'] = f"reflector_w_{mir_w_str}mm_h_{mir_h_str}mm"
-    try:
-        dir_name = scene['name']
-        os.makedirs(dir_name)
-    except FileExistsError:
-        print(f"{dir_name} directory already exists.")
-    
-    try:
-        print(f"{dir_name}/data")
-        os.makedirs(f"{dir_name}/data")
-    except FileExistsError:
-        print("data sub-directory already exists.")
-
-    try:    
-        print(f"{dir_name}/pics")
-        os.makedirs(f"{dir_name}/pics")
-    except FileExistsError:
-        print("pics sub-directory already exists.")
-
-    print("\n=== Running Sim ===")
-    pts_per_mm = 3
-    for idx, pos in enumerate(np.linspace(-2, 2, 4*pts_per_mm+1)): 
-        # Vary Scene Parameters
-        scene["objs"][3]["p1"]["x"] = -my_scene.mirror_width/2 + pos
-        scene["objs"][3]["p2"]["x"] =  my_scene.mirror_width/2 + pos
-        scene["objs"][5]["text"] = f"Mirror is\n{pos:.2f} mm\nfrom ctr"       
-        file_name = f"{scene['name']}_mir_pos_{idx:03}"
-        simulate_scene(scene, file_name, dir_name)
-        
-    ffmpeg_in = f"{dir_name}/pics/{scene['name']}_mir_pos_%3d.png"
-    ffmpeg_out = f"{dir_name}/pics/{scene['name']}.gif"
-    create_gif_from_images(ffmpeg_in, ffmpeg_out, 5)
-
-
-    print("\nExamples completed!")
+print("\nExamples completed!")
 
