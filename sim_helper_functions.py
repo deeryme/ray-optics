@@ -31,12 +31,12 @@ def run_sim_startup_checks():
         print("  npm install canvas")
         sys.exit(0)
 
-def create_gif_from_images(input_pics, output_gif, frame_rate=30):
+def create_gif_from_images(input_pics, output_gif, frame_rate=10):
     export_as_gif_command = [
         'ffmpeg',
         '-framerate', str(frame_rate),
         '-i', input_pics,
-        output_gif
+        output_gif, '-y'
     ]
 
     try:
@@ -56,7 +56,6 @@ def simulate_scene(scene, file_name, dir_name=None):
 
     # Run the simulation using Node.js
     # Assumes runner.js is in the same directory as this script
-    print(f"Simulation Running: {scene['objs'][5]['text']}")
     sim_process = subprocess.run(
         ["node", "runner.js"],
         input=json_encoded_scene.encode(),
@@ -94,3 +93,4 @@ def simulate_scene(scene, file_name, dir_name=None):
     with open(image_path, "wb") as f:
         f.write(base64.b64decode(image_data))
 
+    return readings['power'], readings['irradianceMap']

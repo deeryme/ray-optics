@@ -5,6 +5,7 @@ Ray Optics Simulation of tangential translation of reflector above photodetector
 
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 from sim_helper_functions import run_sim_startup_checks, create_gif_from_images, simulate_scene
 import basic_scene as my_scene
 
@@ -36,20 +37,57 @@ except FileExistsError:
 
 
 # ========== RUN SIM ==========
-print("\n=== Running Sim ===")
+print("\n=== Simulation Running ===")
 pts_per_mm = 20
-delta_X = 2 # mm; mirror's tangential displacement
-for idx, pos in enumerate(np.linspace(-delta_X, delta_X, 2*delta_X*pts_per_mm+1)): 
+max_delta_X = 2 # mm; mirror's tangential displacement
+num_rflt_positions = 2*max_delta_X*pts_per_mm+1
+x = np.linspace(-max_delta_X, max_delta_X, num_rflt_positions)
+P = np.zeros(num_rflt_positions)
+num_bin_positions = np.int64(np.ceil(my_scene.detector_width/my_scene.bin_size))
+Irrad = np.zeros((num_rflt_positions, num_bin_positions))
+
+for idx, pos in enumerate(x): 
+    if idx%4 == 0 :
+        print(f"{idx/num_rflt_positions*100:02.1f}%", end='\r')
     # Vary Scene Parameters
     scene["objs"][3]["p1"]["x"] = -my_scene.mirror_width/2 + pos
     scene["objs"][3]["p2"]["x"] =  my_scene.mirror_width/2 + pos
     scene["objs"][5]["text"] = f"Mirror is\n{pos:.2f} mm\nfrom ctr"       
     file_name = f"{scene['name']}_mir_pos_{idx:03}"
-    simulate_scene(scene, file_name, dir_name)
-    
+    p, irrad = simulate_scene(scene, file_name, dir_name)
+    P[idx] = p
+    Irrad[idx,:] = irrad
+
+
+# ========== USE FFMPEG TO CREATE GIF FROM OUTPUT IMAGES ==========
 ffmpeg_in = f"{dir_name}/pics/{scene['name']}_mir_pos_%3d.png"
 ffmpeg_out = f"{dir_name}/pics/{scene['name']}.gif"
-create_gif_from_images(ffmpeg_in, ffmpeg_out, 5)
+create_gif_from_images(ffmpeg_in, ffmpeg_out)
+
+
+# ========== USE DATA TO CREATE PLOTS ==========
+#  Plot Power vs Tangential Reflector Displacement
+power_fig = plt.figure()
+plt.title("Power vs Tangential Reflector Displacement")
+plt.plot(x, np.abs(P))
+plt.grid(True)
+plt.xlabel(r"$\Delta$x (mm from centre position)")
+plt.ylabel("$Power$")
+plt.savefig(f"{dir_name}/pics/P_v_DeltaX_{scene['name']}.png")
+
+irrad_fig = plt.figure()
+b = np.arange(num_bin_positions)
+bb, xx = np.meshgrid(b, x)
+plt.title("(Line) Irradiance as a function of \nReflector Displacement and Bin Position")
+plt.contourf(bb, xx, Irrad)
+plt.colorbar()
+plt.grid(True)
+plt.ylabel(r"$\Delta$x (mm from centre position)")
+plt.xlabel(f"Bin Position (each bin is {my_scene.bin_size} mm)")
+plt.xticks(b)
+plt.savefig(f"{dir_name}/pics/Irrad_Contour_{scene['name']}.png")
+
+plt.show()
 
 
 print("\nExamples completed!")
