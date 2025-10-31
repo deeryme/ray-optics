@@ -8,26 +8,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sim_helper_functions import run_sim_startup_checks, create_gif_from_images, simulate_scene
 import moire_grid_scene as my_scene
+import json
+import copy
 
 
 run_sim_startup_checks()
-scene = my_scene.SCENE
+scene = copy.deepcopy(my_scene.mirrorless_scene)
+gapped_mirror, p1, p2 = my_scene.construct_gapped_mirror(
+    my_scene.total_mirror_width, my_scene.sub_mirr_len, my_scene.num_gaps)
+scene = my_scene.insert_gapped_mirror(scene, gapped_mirror)
 
 # ========== SETUP FILE STRUCTURE SIM OF A SET OF SCENES ==========
 mir_w_str = 'f'.join(f"{my_scene.total_mirror_width:.1f}".split('.'))
 mir_h_str = 'f'.join(f"{my_scene.mirror_height:.1f}".split('.'))
-scene['name'] = f"reflector_w_{mir_w_str}mm_h_{mir_h_str}mm"
+scene['name'] = f"gapped_reflector_w_{mir_w_str}mm_h_{mir_h_str}mm"
 try:
     dir_name = scene['name']
     os.makedirs(dir_name)
 except FileExistsError:
     print(f"{dir_name} directory already exists.")
-
-try:
-    print(f"{dir_name}/data")
-    os.makedirs(f"{dir_name}/data")
-except FileExistsError:
-    print("data sub-directory already exists.")
 
 try:    
     print(f"{dir_name}/pics")
@@ -36,48 +35,43 @@ except FileExistsError:
     print("pics sub-directory already exists.")
 
 
+
 # ========== RUN SIM ==========
 print("\n=== Simulation Running ===")
+# Setup mirror translation params and preallocate space for output
 pts_per_mm = 3
 max_delta_X = 2 # mm; mirror's tangential displacement
 num_rflt_positions = 2*max_delta_X*pts_per_mm+1
 x = np.linspace(-max_delta_X, max_delta_X, num_rflt_positions)
 P = np.zeros(num_rflt_positions)
 num_bin_positions = np.int64(np.ceil(my_scene.detector_width/my_scene.bin_size))
-Irrad = np.zeros((num_rflt_positions, num_bin_positions))
+irrad = np.zeros((num_rflt_positions, num_bin_positions))
+readings = []
 
 for idx, pos in enumerate(x): 
     if idx%4 == 0 :
         print(f"{idx/num_rflt_positions*100:02.1f}%", end='\r')
     # Vary Scene Parameters
-    scene["objs"][3]["p1"]["x"] = -((2+0.5)*my_scene.gap_len+3*my_scene.sub_mirr_len) + pos
-    scene["objs"][3]["p2"]["x"] = -((2+0.5)*my_scene.gap_len+2*my_scene.sub_mirr_len) + pos
+    for i in range(my_scene.num_gaps+1):
+        scene["objs"][my_scene.NUM_KEYS_B4_OBJS+i]["p1"]["x"] = p1[i] + pos
+        scene["objs"][my_scene.NUM_KEYS_B4_OBJS+i]["p2"]["x"] = p2[i] + pos
 
-    scene["objs"][4]["p1"]["x"] = -((1+0.5)*my_scene.gap_len+2*my_scene.sub_mirr_len) + pos
-    scene["objs"][4]["p2"]["x"] = -((1+0.5)*my_scene.gap_len+my_scene.sub_mirr_len) + pos
-
-    scene["objs"][5]["p1"]["x"] = -((0.5)*my_scene.gap_len+my_scene.sub_mirr_len) + pos
-    scene["objs"][5]["p2"]["x"] = -(0.5)*my_scene.gap_len + pos
-
-    scene["objs"][6]["p1"]["x"] = (0.5)*my_scene.gap_len + pos
-    scene["objs"][6]["p2"]["x"] = (0.5)*my_scene.gap_len+my_scene.sub_mirr_len + pos
-
-    scene["objs"][7]["p1"]["x"] = (1+0.5)*my_scene.gap_len+my_scene.sub_mirr_len + pos
-    scene["objs"][7]["p2"]["x"] = (1+0.5)*my_scene.gap_len+2*my_scene.sub_mirr_len + pos
-
-    scene["objs"][8]["p1"]["x"] = (2+0.5)*my_scene.gap_len+2*my_scene.sub_mirr_len + pos
-    scene["objs"][8]["p2"]["x"] = (2+0.5)*my_scene.gap_len+3*my_scene.sub_mirr_len + pos
-
-    scene["objs"][10]["text"] = f"Mirror is\n{pos:.2f} mm\nfrom ctr"       
+    scene["objs"][-1]["text"] = f"Mirror is\n{pos:.2f} mm\nfrom ctr"       
     file_name = f"{scene['name']}_mir_pos_{idx:03}"
-    p, irrad = simulate_scene(scene, file_name, dir_name)
-    P[idx] = p
-    Irrad[idx,:] = irrad
+    reading = simulate_scene(scene, file_name, dir_name)
+    readings.append(reading)
+    P[idx] = reading['power']
+    irrad[idx,:] = reading['irradianceMap']
 
+
+# ========== EXPORT DETECTOR DATA TO JSON ==========
+readings_path = f"{dir_name}/{scene['name']}.json"
+with open(os.path.join(os.getcwd(), readings_path), 'w', newline='') as file:
+    json.dump(readings, file)
 
 # ========== USE FFMPEG TO CREATE GIF FROM OUTPUT IMAGES ==========
 ffmpeg_in = f"{dir_name}/pics/{scene['name']}_mir_pos_%3d.png"
-ffmpeg_out = f"{dir_name}/pics/{scene['name']}.gif"
+ffmpeg_out = f"{dir_name}/{scene['name']}.gif"
 create_gif_from_images(ffmpeg_in, ffmpeg_out)
 
 
@@ -95,7 +89,7 @@ irrad_fig = plt.figure()
 b = np.arange(num_bin_positions)
 bb, xx = np.meshgrid(b, x)
 plt.title("(Line) Irradiance as a function of \nReflector Displacement and Bin Position")
-plt.contourf(bb, xx, Irrad)
+plt.contourf(bb, xx, irrad)
 plt.colorbar()
 plt.grid(True)
 plt.ylabel(r"$\Delta$x (mm from centre position)")
