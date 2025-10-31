@@ -79,11 +79,6 @@ def simulate_scene(scene, file_name, dir_name=None):
         'shear': detector['shear']
     }
 
-    readings_path = f"{dir_name}/data/{file_name}.json"
-    with open(os.path.join(os.getcwd(), readings_path), 'w', newline='') as file:
-        json.dump(readings, file)
-
-
     # ========== GET IMAGE FROM SIM RESULT ==========
     # Get the image data
     image_data = sim_result['images'][0]['dataUrl'].split(',')[1]
@@ -93,4 +88,4 @@ def simulate_scene(scene, file_name, dir_name=None):
     with open(image_path, "wb") as f:
         f.write(base64.b64decode(image_data))
 
-    return readings['power'], readings['irradianceMap']
+    return readings
