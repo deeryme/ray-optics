@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from sim_helper_functions import run_sim_startup_checks, create_gif_from_images, simulate_scene
 import basic_scene as my_scene
 import json
+import time
 
 
 run_sim_startup_checks()
@@ -33,6 +34,7 @@ except FileExistsError:
 
 # ========== RUN SIM ==========
 print("\n=== Simulation Running ===")
+# Setup mirror translation params and preallocate space for output
 pts_per_mm = 3
 max_delta_X = 2 # mm; mirror's tangential displacement
 num_rflt_positions = 2*max_delta_X*pts_per_mm+1
@@ -41,6 +43,9 @@ P = np.zeros(num_rflt_positions)
 num_bin_positions = np.int64(np.ceil(my_scene.detector_width/my_scene.bin_size))
 irrad = np.zeros((num_rflt_positions, num_bin_positions))
 readings = []
+
+# Record the start time
+start_time = time.perf_counter()
 
 for idx, pos in enumerate(x): 
     if idx%4 == 0 :
@@ -55,6 +60,11 @@ for idx, pos in enumerate(x):
     P[idx] = reading['power']
     irrad[idx,:] = reading['irradianceMap']
 
+# Record the end time
+end_time = time.perf_counter()
+# Calculate the duration
+duration = end_time - start_time
+print(f"Elapsed time: {duration:.6f} seconds")
 
 # ========== EXPORT DETECTOR DATA TO JSON ==========
 readings_path = f"{dir_name}/{scene['name']}.json"
