@@ -39,8 +39,8 @@ SCENE = {
     },
     {
         "type": "TextLabel",
-        "x": 5.5,
-        "y": 7.5,
+        "x": 2,
+        "y": 4,
         "text": "foo",
         "fontSize": 1,
         "font": "Arial"
@@ -74,6 +74,9 @@ def get_arc_mirror(scene, mirror_width, mirror_height,
         scene["objs"][NUM_KEYS_B4_OBJS]["p1"]["x"] = p1_x
         scene["objs"][NUM_KEYS_B4_OBJS]["p2"]["x"] = p2_x
         scene["objs"][NUM_KEYS_B4_OBJS]["p3"]["x"] = p3_x
+        scene["objs"][NUM_KEYS_B4_OBJS]["p1"]["y"] = -mirror_height
+        scene["objs"][NUM_KEYS_B4_OBJS]["p2"]["y"] = -mirror_height
+        scene["objs"][NUM_KEYS_B4_OBJS]["p3"]["y"] = -mirror_height+d
     else:
         p1 = {'x': p1_x, 'y': -mirror_height}
         p2 = {'x': p2_x, 'y': -mirror_height}

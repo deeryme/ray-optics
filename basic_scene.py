@@ -1,6 +1,6 @@
-detector_width  = 1.5 # mm
-mirror_width    = 1.0 # mm
-mirror_height   = 4.0 # mm
+detector_w  = 1.5 # mm
+mirror_w    = 1.0 # mm
+mirror_h   = 0.0 # mm
 bin_size        = 0.1
 
 
@@ -22,15 +22,15 @@ SCENE = {
     },
     {
         "type": "Detector",
-        "p1": {"x": -detector_width/2, "y": 0},
-        "p2": {"x": detector_width/2, "y": 0},
+        "p1": {"x": -detector_w/2, "y": 0},
+        "p2": {"x": detector_w/2, "y": 0},
         "irradMap": True,
         "binSize": bin_size
     },
     {
         "type": "Mirror",
-        "p1": {"x": -mirror_width/2, "y": -mirror_height},
-        "p2": {"x": mirror_width/2, "y": -mirror_height}
+        "p1": {"x": -mirror_w/2, "y": -mirror_h},
+        "p2": {"x": mirror_w/2, "y": -mirror_h}
     },
     {
         "type": "CropBox",
@@ -40,8 +40,8 @@ SCENE = {
     },
     {
         "type": "TextLabel",
-        "x": 5.5,
-        "y": 7.5,
+        "x": 2.5,
+        "y": 5.5,
         "text": "foo",
         "fontSize": 1,
         "font": "Arial"
