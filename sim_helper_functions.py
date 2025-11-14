@@ -12,8 +12,10 @@ import shutil
 
 def run_sim_startup_checks():
     # ========== Startup Checks ==========
-    print("Ray Optics Simulation - Python Example")
+    print("#", '='*65)
+    print("\t\tRay Optics Simulation - Python Example")
     print("For more information about this package, see the README.md file.")
+    print("#", '='*65, '\n')
 
     # Check if Node.js is installed
     if not shutil.which("node"):
@@ -89,3 +91,6 @@ def simulate_scene(scene, file_name, dir_name=None):
         f.write(base64.b64decode(image_data))
 
     return readings
+
+def simulate_scenes_wrapper(idx, x_offset, scene, dir_name): 
+    return simulate_scene(scene, scene['name'], dir_name)

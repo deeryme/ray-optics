@@ -1,4 +1,5 @@
 from numpy import sqrt
+import json
 
 NUM_KEYS_B4_OBJS = 3
 
@@ -84,4 +85,15 @@ def get_arc_mirror(scene, mirror_width, mirror_height,
         arc_mirror = {"type": "ArcMirror", "p1": p1, "p2": p2, "p3": p3}
         scene["objs"].insert(NUM_KEYS_B4_OBJS, arc_mirror)
 
+    return scene
+
+def get_h_sweep_scene(scene, h_sweep_name, mirror_w, h,
+                      r, is_concave_up, top, idx, x_offset):
+    scene = get_arc_mirror(scene, mirror_w, h,
+                r, is_concave_up, x_offset)
+
+    scene["objs"][-1]["text"] = f"r = {r:.4f} mm,\ntop = {top:.4f} mm,\nMirror is\n{x_offset:.2f} mm\nfrom ctr"             
+    scene['name'] = f"{h_sweep_name}_mir_pos_{idx:03}"
+
+    # return json.dumps(scene)
     return scene
