@@ -6,7 +6,7 @@ Ray Optics Simulation of tangential translation of reflector above photodetector
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from sim_helper_functions import run_sim_startup_checks, create_gif_from_images, simulate_scene, simulate_scenes_wrapper
+from sim_helper_functions import run_sim_startup_checks, create_gif_from_images, simulate_scenes_wrapper
 import arc_scene as my_scene
 import json
 import copy
@@ -20,11 +20,11 @@ if __name__ == '__main__':
     # RESULTS_DIR     = "/Users/nirodha/Library/CloudStorage/OneDrive-Personal/Documents/2025/Thesis/CODE/results"
     mirror_h        = 4.0       # mm; indicates the height of the mirror endpts
     mirror_w        = 1.0       # mm
-    r               = 0.668     # mm; radius of curvature <<<<<<<<
-    d               = 0.22503   # mm <<<<<<<<<
+    r               = 2.525     # mm; radius of curvature <<<<<<<<
+    d               = 0.05   # mm <<<<<<<<<
     is_concave_up   = False      # <<<<<<<<<
     max_delta_Y     = 4         # mm
-    v_pts_per_mm    = 8         # <<<<<<<<<
+    v_pts_per_mm    = 16         # <<<<<<<<<
 
     scene = copy.deepcopy(my_scene.SCENE)
     scene = my_scene.get_arc_mirror(scene, mirror_w, mirror_h,
@@ -49,13 +49,14 @@ if __name__ == '__main__':
 
     #%%
     mir_r_str = 'f'.join(f"{r:.4f}".split('.'))
-    main_dir_name = f"concave/concave_{concavity}_r_{mir_r_str}mm"
+    main_dir_name = f"../mp_results/arc/concave_{concavity}_r_{mir_r_str}mm"
     try:
         os.makedirs(main_dir_name)
     except FileExistsError:
         print(f"{main_dir_name} directory already exists.")
 
     top_file_names = []
+    total_sim_duration = 0.0    # seconds
     for h in heights:
         # ========== SETUP FILE STRUCTURE SIM OF A SET OF SCENES ==========
     
@@ -92,11 +93,11 @@ if __name__ == '__main__':
         
         x_idxs = list(range(len(x)))
         h_sweep_scenes = [
-            my_scene.get_h_sweep_scene(copy.deepcopy(scene), h_sweep_name, mirror_w, 
-                        h, r, is_concave_up, top, idx, x[idx]) for idx in x_idxs
+            my_scene.get_h_sweep_scene(copy.deepcopy(scene), h_sweep_name, mirror_w, h, r, is_concave_up, top, idx, x[idx]) for idx in x_idxs
         ]
         sim_wrapper_args = list(zip(x_idxs, x, h_sweep_scenes, [sub_dir_name]*len(x)))
 
+        # Record the start time
         start_time = time.perf_counter()
         with Pool() as pool:
             readings = pool.starmap(simulate_scenes_wrapper, sim_wrapper_args)
@@ -105,11 +106,11 @@ if __name__ == '__main__':
             P[idx] = readings[idx]['power']
             irrad[idx,:] = readings[idx]['irradianceMap']
 
-        # Record the end time
+        # Record the end time and calculate the lateral sweep duration
         end_time = time.perf_counter()
-        # Calculate the duration
         duration = end_time - start_time
         print(f"Elapsed time: {duration:.6f} seconds")
+        total_sim_duration += duration
 
 
         # ========== EXPORT DETECTOR DATA TO JSON ==========
@@ -148,6 +149,6 @@ if __name__ == '__main__':
         # plt.show()
 
 
-    print("\nExamples completed!")
+    print('\a'*5, f"\nXY sweep complete! (Total Sim. Duration =  {total_sim_duration}s)")
     with open(f"{main_dir_name}/tops.json", 'w') as f:
         json.dump(top_file_names, f)
