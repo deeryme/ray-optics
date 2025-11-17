@@ -64,8 +64,8 @@ def get_arc_mirror(scene, mirror_width, mirror_height,
                r, is_concave_up, x_offset=0.0, add_brand_new=False):
    
     half_width = mirror_width/2 
-    p1_x = -mirror_width/2 + x_offset
-    p2_x = mirror_width/2 + x_offset
+    p1_x = -half_width + x_offset
+    p2_x = half_width + x_offset
     p3_x = x_offset
     d = r-sqrt(r**2-half_width**2) # perp. dist. from p3 to p1-p2 chord
     if not is_concave_up:
@@ -95,5 +95,4 @@ def get_h_sweep_scene(scene, h_sweep_name, mirror_w, h,
     scene["objs"][-1]["text"] = f"r = {r:.4f} mm,\ntop = {top:.4f} mm,\nMirror is\n{x_offset:.2f} mm\nfrom ctr"             
     scene['name'] = f"{h_sweep_name}_mir_pos_{idx:03}"
 
-    # return json.dumps(scene)
     return scene
