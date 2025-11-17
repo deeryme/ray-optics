@@ -59,3 +59,16 @@ SCENE = {
   },
   "scale": 50
 }
+
+def get_h_sweep_scene(scene, h_sweep_name, mirror_w, top, idx, x_offset):
+    # scene = get_arc_mirror(scene, mirror_w, h, is_concave_up, x_offset)
+    half_width = mirror_w/2 
+    scene["objs"][3]["p1"]["x"] = -half_width + x_offset
+    scene["objs"][3]["p1"]["y"] = -top
+    scene["objs"][3]["p2"]["x"] =  half_width + x_offset
+    scene["objs"][3]["p2"]["y"] = -top
+    
+    scene["objs"][-1]["text"] = f"top = {top:.4f} mm,\nMirror is\n{x_offset:.2f} mm\nfrom ctr"    
+    scene['name'] = f"{h_sweep_name}_mir_pos_{idx:03}"
+
+    return scene
