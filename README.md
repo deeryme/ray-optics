@@ -1,6 +1,6 @@
 # Ray Optics Simulation - Integration Tools
 
-Version: 5.2+20251108.125e9ac
+Version: 5.2+20251115.6ffbf20
 
 This package contains tools for integrating the Ray Optics Simulation engine with other programming languages.
 
