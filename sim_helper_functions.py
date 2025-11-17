@@ -35,7 +35,8 @@ def run_sim_startup_checks():
 
 def create_gif_from_images(input_pics, output_gif, frame_rate=10):
     export_as_gif_command = [
-        'ffmpeg',
+        'ffmpeg', 
+        '-hide_banner', '-loglevel', 'error',
         '-framerate', str(frame_rate),
         '-i', input_pics,
         output_gif, '-y'
