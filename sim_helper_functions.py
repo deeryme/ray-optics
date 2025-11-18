@@ -95,3 +95,13 @@ def simulate_scene(scene, file_name, dir_name=None):
 
 def simulate_scenes_wrapper(idx, x_offset, scene, dir_name): 
     return simulate_scene(scene, scene['name'], dir_name)
+
+def discard_directory(dir_name):
+    if os.path.isdir(dir_name):
+        try:
+            shutil.rmtree(dir_name)
+            print(f"Successfully discarded {dir_name}.'")
+        except OSError as e:
+            print(f"Error: {dir_name} : {e.strerror}")
+    else:
+        print(f"Directory '{dir_name}' does not exist.")

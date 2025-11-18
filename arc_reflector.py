@@ -6,18 +6,18 @@ Ray Optics Simulation of tangential translation of reflector above photodetector
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from sim_helper_functions import run_sim_startup_checks, create_gif_from_images, simulate_scenes_wrapper
+from sim_helper_functions import run_sim_startup_checks, create_gif_from_images, simulate_scenes_wrapper, discard_directory
 import arc_scene as my_scene
 import json
 import copy
 import time
 from multiprocessing import Pool
+import shutil
 
 if __name__ == '__main__':
     run_sim_startup_checks()
     np.set_printoptions(precision=4)
 
-    # RESULTS_DIR     = "/Users/nirodha/Library/CloudStorage/OneDrive-Personal/Documents/2025/Thesis/CODE/results"
     mirror_h        = 4.0       # mm; indicates the height of the mirror endpts
     mirror_w        = 1.0       # mm
     r               = 2.525     # mm; radius of curvature <<<<<<<<
@@ -25,6 +25,9 @@ if __name__ == '__main__':
     is_concave_up   = False      # <<<<<<<<<
     max_delta_Y     = 4         # mm
     v_pts_per_mm    = 16         # <<<<<<<<<
+
+    save_frames     = False
+    make_gif        = True
 
     scene = copy.deepcopy(my_scene.SCENE)
     scene = my_scene.get_arc_mirror(scene, mirror_w, mirror_h,
@@ -119,10 +122,12 @@ if __name__ == '__main__':
             json.dump(list(readings), file)
 
         # ========== USE FFMPEG TO CREATE GIF FROM OUTPUT IMAGES ==========
-        ffmpeg_in = f"{sub_dir_name}/pics/{h_sweep_name}_mir_pos_%3d.png"
-        ffmpeg_out = f"{sub_dir_name}/{h_sweep_name}.gif"
-        create_gif_from_images(ffmpeg_in, ffmpeg_out)
-
+        if make_gif:
+            ffmpeg_in = f"{sub_dir_name}/pics/{h_sweep_name}_mir_pos_%3d.png"
+            ffmpeg_out = f"{sub_dir_name}/{h_sweep_name}.gif"
+            create_gif_from_images(ffmpeg_in, ffmpeg_out)
+        if not save_frames:
+            discard_directory(f"{sub_dir_name}/pics")
 
         # ========== USE DATA TO CREATE PLOTS ==========
         #  Plot Power vs Tangential Reflector Displacement
